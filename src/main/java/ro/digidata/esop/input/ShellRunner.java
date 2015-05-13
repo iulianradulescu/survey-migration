@@ -6,12 +6,16 @@
 package ro.digidata.esop.input;
 
 import java.util.Scanner;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ro.digidata.esop.input.commands.UserCommandFactory;
 
 @Component
 public class ShellRunner {
 
+    @Autowired
+    private UserCommandFactory factory;
+    
     private String handleInput() {
         //promp the user
         promptUser();
@@ -33,7 +37,7 @@ public class ShellRunner {
             while (true) {
                 try {
                 String command = handleInput( );
-                System.out.println( command );
+                
                 } catch (Exception  ex ) {
                     //invalid command; retry again
                     System.out.println("Introduceti din nou comanda:");
