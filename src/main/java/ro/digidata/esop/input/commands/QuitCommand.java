@@ -5,7 +5,10 @@
  */
 package ro.digidata.esop.input.commands;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.stereotype.Component;
+import ro.digidata.esop.input.exceptions.QuitException;
 
 /**
  *
@@ -15,13 +18,14 @@ import org.springframework.stereotype.Component;
 public class QuitCommand extends UserCommand {
 
     @Override
-    protected void doValidate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected Map<String, Object> validate(String[] parameters) {
+	//just ignore anuy text written after the command
+	return new HashMap<>( );
     }
 
     @Override
-    protected void doExecute() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    protected void execute(Map<String, Object> parametersMap) {
+	throw new QuitException( );
     }
     
 }

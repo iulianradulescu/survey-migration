@@ -5,9 +5,12 @@
  */
 package ro.digidata.esop.input.commands;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
+import ro.digidata.esop.input.exceptions.InvalidCommandException;
 
 /**
  *
@@ -17,5 +20,18 @@ import org.springframework.stereotype.Component;
 public class UserCommandFactory {
     
     @Resource
-    private Map<String,UserCommand> commands;
+    private Map<String,UserCommand> commands = new HashMap<>( );
+    
+    public UserCommand getCommand( String commandName ) {
+	UserCommand command = commands.get( commandName );
+	if ( command == null ) {
+	    throw new InvalidCommandException(String.format("Commanda [%s] este invalida!", commandName ));
+	}
+	
+	return command;
+    }
+    
+    public Set<String> getCommandSet( ) {
+	return commands.keySet();
+    }
 }

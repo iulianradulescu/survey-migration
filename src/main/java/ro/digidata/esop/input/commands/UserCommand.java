@@ -1,5 +1,6 @@
 package ro.digidata.esop.input.commands;
 
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ro.digidata.esop.input.exceptions.InvalidCommandException;
@@ -13,23 +14,23 @@ public abstract class UserCommand {
 
     protected Logger logger = LoggerFactory.getLogger(UserCommand.class);
 
-    public UserCommand() {
+    public UserCommand( ) {
     }
 
-    public void execute(String[] parameters) {
+    public void execute( String[] parameters ) {
         try {
-            //validate the command
-            doValidate( );
+            //validate the command parameters
+            Map<String, Object> parametersMap = validate( parameters );
 
             //execute the command
-            doExecute();
+            execute( parametersMap );
         } catch (InvalidCommandException exICE) {
             //show a message and re run the hadnleInput method
             logger.error(exICE.getMessage());
         }
     }
 
-    protected abstract void doValidate();
+    protected abstract Map<String,Object> validate( String[] parameters );
 
-    protected abstract void doExecute();
+    protected abstract void execute( Map<String, Object> parametersMap );
 }
