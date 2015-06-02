@@ -30,10 +30,7 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TM
 
     @Autowired
     protected SampleRepository sampleRepository;
-
-    @Autowired
-    protected ReportingUnitRepository ruRepository;
-
+    
     @Autowired
     protected ReportingUnitUserRepository ruuRepository;
 
@@ -58,7 +55,7 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TM
         output.setLastComputed(record.getLastComputed());
         output.setLastUpdated(record.getLastUpdated());
 
-	Sample sample = processSample(record);
+	Sample sample = sampleRepository.findBySurveyAndStatisticalUnit(survey, record.getSample().getMaximalListId());
 
 	Questionnaire quest = processQuestionnaire(sample, record);
 
@@ -69,30 +66,6 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TM
 	handleNonResponse( record, sample );
 	
 	return output;
-    }
-
-    protected Sample processSample(SMicrodata input) {
-	//search for the sample; if not found,insert it. If there is no reporting_unit inserted for the expected ID, if not put NULL
-	Sample sample = sampleRepository.findBySurveyAndStatisticalUnit(survey, input.getSample().getMaximalListId());
-
-	if (sample == null) {
-	    sample = new Sample();
-
-	    sample.setOnlineEdit(input.getSample().getOnlineEdit());
-	    sample.setStatus(input.getSample().getStatus());
-
-	    sample.setSurvey(survey);
-	    sample.setStatisticalUnit(input.getSample().getMaximalListId());
-
-	    //check if the reporting unit id exists; if not, put null
-	    ReportingUnit reportingUnit = ruRepository.findOne(input.getSample().getMaximalListId());
-
-	    if (reportingUnit != null) {
-		sample.setReportingUnit(input.getSample().getMaximalListId());
-	    }
-	}
-
-	return sample;
     }
 
     protected Questionnaire processQuestionnaire(Sample sample, SMicrodata input) {

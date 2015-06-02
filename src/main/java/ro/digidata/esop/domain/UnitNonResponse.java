@@ -38,7 +38,7 @@ public class UnitNonResponse {
     @Column(name="NONRESPONSE_CODE")
     private int nonresponse;
     
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @ManyToOne
     @JoinColumn(name="SAMPLE_ID")
     private Sample sample;
    
