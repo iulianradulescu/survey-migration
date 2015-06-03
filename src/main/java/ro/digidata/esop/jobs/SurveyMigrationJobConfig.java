@@ -118,7 +118,7 @@ public class SurveyMigrationJobConfig {
 	reader.setEntityManagerFactory(emf);
 
 	reader.setQueryString("select m from SMicrodata m where m.instance.survey=" + survey
-		+ "and m.instance.survey.status=13 and m.instance.period!=0 order by m.instance.id desc");
+		+ "and m.instance.survey.status=13 and m.instance.period!=0 order by m.instance.id desc, m.sample.id asc");
 
 	reader.setPageSize(30);
 

@@ -5,8 +5,8 @@
  */
 package ro.digidata.esop.domain;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -31,7 +31,7 @@ public class Sample {
     @Id
     @SequenceGenerator(name = "SQSAMPLE", sequenceName = "SQ_SAMPLE", allocationSize = 1)
     @GeneratedValue(generator = "SQSAMPLE")
-    private long id;
+    private Long id;
 
     private int status;
 
@@ -53,14 +53,14 @@ public class Sample {
     @Column(name="REPORTING_UNIT_ID")
     private Long reportingUnit;
     
-    @OneToMany(mappedBy = "sample", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    private List<UnitNonResponse> nonResponses;
+    @OneToMany(mappedBy = "sample", cascade = {CascadeType.ALL})
+    private Set<UnitNonResponse> nonResponses;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -94,9 +94,23 @@ public class Sample {
     
     public void addNonResponse( UnitNonResponse nonResponse ) {
 	if ( nonResponses == null ) {
-	    nonResponses = new ArrayList<UnitNonResponse>( );
+	    nonResponses = new TreeSet<UnitNonResponse>( );
 	}
 	nonResponses.add(nonResponse);
+    }
+    
+    public boolean equals( Object object ) {
+            if ( object == null || !(object instanceof UnitNonResponse) ) {
+            return false;
+        }
+        
+        Sample other = ( Sample ) object;
+        
+        if ( other.id == null || this.id == null ) {
+            return other.survey == this.survey && other.statisticalUnit == this.statisticalUnit;
+        } else {
+            return other.id == this.id;
+        }
     }
     
 }

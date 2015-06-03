@@ -70,5 +70,14 @@ public class UnitNonResponse {
         this.instance = instance;
     }
     
+    public boolean equals( Object object ) {
+        if ( object == null || !(object instanceof UnitNonResponse) ) {
+            return false;
+        }
+        
+        UnitNonResponse other = ( UnitNonResponse ) object;
+        return ( other.getSample().equals( this.sample ) && other.instance == this.instance );
+    }
+    
     
 }
