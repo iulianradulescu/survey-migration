@@ -33,7 +33,7 @@ public class ValidateSurveyMigration implements Tasklet {
 	Long originalCount = ssampleRepository.countBySurveyId( survey );
 	Long newCount = sampleRepository.countBySurvey( survey );
 	
-	System.out.println("SAMPLE RECORDS = [ ORIGINAL = " + originalCount + " | NEW = " + newCount );
+	System.out.println("SAMPLE RECORDS = [ ORIGINAL = " + originalCount + " | NEW = " + newCount + "]");
 	
 	return RepeatStatus.FINISHED;
     }

@@ -8,14 +8,19 @@ package ro.digidata.esop.jobs.steps;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import ro.digidata.esop.domain.Questionnaire;
-import ro.digidata.esop.domain.ReportingUnit;
+import ro.digidata.esop.domain.ReportingUnitUser;
 import ro.digidata.esop.domain.SMicrodata;
-import ro.digidata.esop.domain.SSample;
 import ro.digidata.esop.domain.Sample;
 import ro.digidata.esop.domain.TMicrodata;
 import ro.digidata.esop.domain.UnitNonResponse;
 import ro.digidata.esop.domain.enums.FillMode;
 import ro.digidata.esop.domain.enums.QuestionnaireStatus;
+import ro.digidata.esop.jobs.steps.model.MicrodataMigrationProcessorOutput;
+import ro.digidata.esop.jobs.steps.model.authorization.Authorization;
+import ro.digidata.esop.jobs.steps.model.authorization.AuthorizationUtils;
+import ro.digidata.esop.jobs.steps.model.authorization.QuestionnaireType;
+import ro.digidata.esop.jobs.steps.model.authorization.SurveyType;
+import ro.digidata.esop.jobs.steps.model.authorization.UnitType;
 import ro.digidata.esop.repositories.QuestionnaireRepository;
 import ro.digidata.esop.repositories.ReportingUnitRepository;
 import ro.digidata.esop.repositories.ReportingUnitUserRepository;
@@ -25,7 +30,7 @@ import ro.digidata.esop.repositories.SampleRepository;
  *
  * @author radulescu
  */
-public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TMicrodata> {
+public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, MicrodataMigrationProcessorOutput> {
 
     private final Long survey;
 
@@ -46,7 +51,7 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TM
     }
 
     @Override
-    public TMicrodata process(SMicrodata record) throws Exception {
+    public MicrodataMigrationProcessorOutput process(SMicrodata record) throws Exception {
         TMicrodata output = new TMicrodata();
 
         output.setInstance(record.getInstance());
@@ -58,10 +63,16 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TM
         output.setInterview(record.getInterview());
         output.setLastComputed(record.getLastComputed());
         output.setLastUpdated(record.getLastUpdated());
-
-        Sample sample =  sampleRepository.findBySurveyAndStatisticalUnit(survey, record.getSample().getMaximalListId());//processSample( record );
+        
+        Sample sample = sampleRepository.findBySurveyAndStatisticalUnit(survey, record.getSample().getMaximalListId());//processSample( record );
 
         Questionnaire quest = processQuestionnaire(sample, record);
+        
+        ReportingUnitUser ruu = null;
+        
+        if ( record.getRespondent( ) != null ) {
+            ruu = processAuthorization(quest, record.getRespondent(  ) );
+        }
 
         //set on microdata
         output.setQuestionnaire(quest);
@@ -69,30 +80,7 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TM
         //handle also the nonresponse
         handleNonResponse(record, sample);
 
-        return output;
-    }
-
-    protected Sample processSample(SMicrodata input) throws Exception {
-        Sample sample = sampleRepository.findBySurveyAndStatisticalUnit(survey, input.getSample().getMaximalListId());
-
-        if (sample == null) {
-            sample = new Sample();
-
-            sample.setOnlineEdit(input.getSample().getOnlineEdit());
-            sample.setStatus(input.getSample().getStatus());
-
-            sample.setSurvey(survey);
-            sample.setStatisticalUnit(input.getSample().getMaximalListId());
-
-            //check if the reporting unit id exists; if not, put null
-            ReportingUnit reportingUnit = ruRepository.findOne(input.getSample().getMaximalListId());
-
-            if (reportingUnit != null) {
-                sample.setReportingUnit(input.getSample().getMaximalListId());
-            }
-        }
-
-        return sample;
+        return new MicrodataMigrationProcessorOutput(output, ruu);
     }
 
     protected Questionnaire processQuestionnaire(Sample sample, SMicrodata input) {
@@ -126,5 +114,72 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, TM
             //perhaps is better to put default to 9, and change it when we have an interview or something explicitly set
             nonresp.setNonresponse(input.getNonresponse() != null ? input.getNonresponse() : 1);
         }
+    }
+
+    protected ReportingUnitUser processAuthorization(Questionnaire questionnaire, String username) {
+        //we need to see if the respondent is defined in REPORTING_UNIT_USER; if not insert it, is yes,update the AUTHORIZATION field
+        ReportingUnitUser user = ruuRepository.findByUsernameAndReportingUnitId(username, questionnaire.getSample().getReportingUnit());
+
+        if (user != null) {
+            //it means the user was not deactivated in the meantime (still in MAXIMAL_LIST_USER which was migrated to REPORTING_UNIT_USER).
+            Authorization auth = null;
+            if (user.getAuthorization() != null) {
+                auth = AuthorizationUtils.unmarshallAuthorization(user.getAuthorization());
+            }
+
+            if (auth == null) {
+                auth = new Authorization();
+            }
+
+            //add the new configuration and then save it back
+            UnitType unit = null;
+            SurveyType survey = null;
+            QuestionnaireType quest = null;
+
+            for (UnitType u : auth.getUnit()) {
+                if (u.getId() == questionnaire.getSample().getStatisticalUnit()) {
+                    unit = u;
+                    break;
+                }
+            }
+
+            if (unit == null) {
+                unit = new UnitType();
+                unit.setId(questionnaire.getSample().getStatisticalUnit());
+                auth.getUnit().add(unit);
+            }
+
+            for (SurveyType s : unit.getSurvey()) {
+                if (s.getId() == this.survey) {
+                    survey = s;
+                    break;
+                }
+            }
+
+            if (survey == null) {
+                survey = new SurveyType();
+                survey.setId((long) this.survey);
+                unit.getSurvey().add(survey);
+            }
+
+            for (QuestionnaireType q : survey.getQuestionnaire()) {
+                if (q.getId() == (long) questionnaire.getId()) {
+                    quest = q;
+                    break;
+                }
+            }
+
+            if (quest == null) {
+                quest = new QuestionnaireType();
+                quest.setId((long) questionnaire.getId());
+                survey.getQuestionnaire().add(quest);
+
+            }
+
+            String xml = AuthorizationUtils.marshallAuthorization(auth);
+            user.setAuthorization(xml);
+        }
+
+        return user;
     }
 }

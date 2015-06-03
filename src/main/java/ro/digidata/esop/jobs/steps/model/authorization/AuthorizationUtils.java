@@ -25,7 +25,7 @@ public final class AuthorizationUtils {
 
     public static Authorization unmarshallAuthorization(String xml) {
         try {
-            JAXBContext jc = JAXBContext.newInstance("ro.digidata.esop.model.authorization");
+            JAXBContext jc = JAXBContext.newInstance("ro.digidata.esop.jobs.steps.model.authorization");
             Unmarshaller um = jc.createUnmarshaller();
 
             return (Authorization) um.unmarshal(new StringReader(xml));
@@ -42,7 +42,7 @@ public final class AuthorizationUtils {
         }
 
         try {
-            JAXBContext jc = JAXBContext.newInstance("ro.digidata.esop.model.authorization");
+            JAXBContext jc = JAXBContext.newInstance("ro.digidata.esop.jobs.steps.model.authorization");
             Marshaller m = jc.createMarshaller();
 
             StringWriter writer = new StringWriter();

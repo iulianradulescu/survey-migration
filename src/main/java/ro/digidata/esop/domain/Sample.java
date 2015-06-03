@@ -87,9 +87,15 @@ public class Sample {
     public void setStatisticalUnit(long statisticalUnit) {
         this.statisticalUnit = statisticalUnit;
     }
+    public Long getStatisticalUnit( ) {
+        return this.statisticalUnit;
+    }
 
     public void setReportingUnit(Long reportingUnit) {
         this.reportingUnit = reportingUnit;
+    }
+    public Long getReportingUnit( ) {
+        return this.reportingUnit;
     }
     
     public void addNonResponse( UnitNonResponse nonResponse ) {
