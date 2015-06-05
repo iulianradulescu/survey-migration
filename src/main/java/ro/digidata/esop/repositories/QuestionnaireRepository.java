@@ -7,6 +7,7 @@ package ro.digidata.esop.repositories;
 
 import org.springframework.data.repository.CrudRepository;
 import ro.digidata.esop.domain.Questionnaire;
+import ro.digidata.esop.domain.enums.QuestionnaireStatus;
 
 /**
  *
@@ -15,4 +16,6 @@ import ro.digidata.esop.domain.Questionnaire;
 public interface QuestionnaireRepository extends CrudRepository<Questionnaire, Long> {
     
     Questionnaire findBySampleIdAndQuestType(Long sample, String questType);
+    
+    Questionnaire findBySampleIdAndStatus( Long sample, QuestionnaireStatus status);
 }

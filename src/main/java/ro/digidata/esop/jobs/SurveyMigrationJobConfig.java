@@ -59,13 +59,11 @@ public class SurveyMigrationJobConfig {
     @Bean(name = "surveyMigrationJob")
     public Job job() {
         return jobs.get("surveyMigrationJob").start(step3()).split( executor( ) ).add( flow( )).on("COMPLETED").to(step3()).end( ).build();
-             
     }
 
     @Bean(name="smFlow")
     public Flow flow( ) {
         return new FlowBuilder<Flow>("flow").from(step0()).next(step1()).end();
-       // return jobs.get("surveyMigrationJob").flow(step3()).split( executor( ))snext(step1()).next(step2()).build();
     }
     
      @Bean(name = "smStep3")
@@ -138,7 +136,6 @@ public class SurveyMigrationJobConfig {
     @Bean(name = "smReader1")
     @StepScope
     public ItemStreamReader<SMicrodata> reader1(@Value("#{jobParameters['survey']}") Long survey) {
-        System.out.println(emf == null);
         JpaPagingItemReader<SMicrodata> reader = new JpaPagingItemReader<>();
         reader.setEntityManagerFactory(emf);
 
@@ -193,7 +190,6 @@ public class SurveyMigrationJobConfig {
      @Bean(name = "smReader3")
     @StepScope
     public ItemStreamReader<MaximalListSurveyUser> reader3(@Value("#{jobParameters['survey']}") Long survey) {
-        System.out.println(emf == null);
         JpaPagingItemReader<MaximalListSurveyUser> reader = new JpaPagingItemReader<>();
         reader.setEntityManagerFactory(emf);
 
