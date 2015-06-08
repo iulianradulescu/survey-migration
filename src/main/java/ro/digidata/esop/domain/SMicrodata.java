@@ -25,7 +25,7 @@ import javax.persistence.TemporalType;
  * @author iulian.radulescu
  */
 @Entity
-@Table(name = "OLD_MICRODATA", schema = "ESOP_MIGRATION")
+@Table(name = "OLD_MICRODATA")
 @NamedQueries({
     @NamedQuery(name = "Microdata.getData", query = "select m.id from SMicrodata m where m.instance.id = :instance"),
     @NamedQuery(name = "Microdata.getHistoricalData", query = "select m from SMicrodata m "

@@ -17,7 +17,7 @@ import javax.persistence.Table;
  * @author iulian.radulescu
  */
 @Entity
-@Table(name="OLD_SAMPLE", schema="ESOP_MIGRATION")
+@Table(name="OLD_SAMPLE")
 public class SSample {
     
     @Id

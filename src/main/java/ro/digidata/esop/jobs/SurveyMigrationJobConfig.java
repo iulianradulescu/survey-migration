@@ -58,7 +58,8 @@ public class SurveyMigrationJobConfig {
 
     @Bean(name = "surveyMigrationJob")
     public Job job() {
-        return jobs.get("surveyMigrationJob").start(step3()).split( executor( ) ).add( flow( )).on("COMPLETED").to(step3()).end( ).build();
+        return jobs.get("surveyMigrationJob").start(step3()).split( executor( ) ).add( flow( )).on("COMPLETED").to(step2()).end( ).build();
+        //return jobs.get("surveyMigrationJob").start(step0()).next(step1()).next(step2()).build();
     }
 
     @Bean(name="smFlow")
