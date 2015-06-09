@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ro.digidata.esop.jobs.steps;
+package ro.digidata.esop.jobs.steps.processors;
 
 import ro.digidata.esop.domain.Questionnaire;
 import ro.digidata.esop.domain.SMicrodata;

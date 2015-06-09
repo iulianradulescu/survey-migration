@@ -27,7 +27,7 @@ public class MigrateSurveyCommand extends UserCommand {
     @Autowired
     private JobLauncher launcher;
 
-    @Resource(name = "surveyMigrationJob")
+    @Resource(name = "simpleMigrationJob")
     private Job job;
 
     @Override

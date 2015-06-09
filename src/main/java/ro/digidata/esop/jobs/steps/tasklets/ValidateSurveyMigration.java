@@ -3,43 +3,37 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ro.digidata.esop.jobs.steps;
+package ro.digidata.esop.jobs.steps.tasklets;
 
-import java.util.List;
-import javax.transaction.Transactional;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import ro.digidata.esop.domain.ReportingUnitUser;
-import ro.digidata.esop.repositories.ReportingUnitUserRepository;
-import ro.digidata.esop.repositories.TMicrodataRepository;
+import ro.digidata.esop.repositories.SSampleRepository;
+import ro.digidata.esop.repositories.SampleRepository;
 
 /**
  *
  * @author radulescu
  */
+public class ValidateSurveyMigration implements Tasklet {
 
-public class RevertSurveyMigration implements Tasklet {
+    @Autowired
+    private SSampleRepository ssampleRepository;
     
     @Autowired
-    private TMicrodataRepository tmRepository;
+    private SampleRepository sampleRepository;
     
-    @Autowired
-    private ReportingUnitUserRepository ruuRepository;
-
     @Override
-    @Transactional
     public RepeatStatus execute(StepContribution sc, ChunkContext cc) throws Exception {
 	Long survey = (Long)cc.getStepContext().getJobParameters().get("survey");
 	
-	System.out.println("SURVEY == " + survey );
-	List<ReportingUnitUser> users = ruuRepository.findBySurvey( survey);
-	System.out.println("Number of users = " + users.size());
+	//validate the records from SAMPLE, QUESTIONNAIRE. MICRODATA
+	Long originalCount = ssampleRepository.countBySurveyId( survey );
+	Long newCount = sampleRepository.countBySurvey( survey );
 	
-	Long rows = tmRepository.deleteByInstanceSurveyId( survey );
-	System.out.println("NUMBER OF ROWS = " + rows );
+	System.out.println("SAMPLE RECORDS = [ ORIGINAL = " + originalCount + " | NEW = " + newCount + "]");
 	
 	return RepeatStatus.FINISHED;
     }
