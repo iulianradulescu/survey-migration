@@ -31,31 +31,22 @@ public class UpdateQuestInstCommand extends UserCommand {
     private Job job;
 
     @Override
-    protected Map<String, Object> validate(String[] parameters) {
-	Map<String, Object> paramObjects = new HashMap<>();
+    public void execute(String[] parameters) {
+        if (parameters == null || parameters.length != 1) {
+            throw new InvalidCommandException(String.format("Invalid number of parameters. Expected 1 found %d", parameters == null ? 0 : parameters.length));
+        }
 
-	if (parameters == null || parameters.length != 1) {
-	    throw new InvalidCommandException(String.format("Invalid number of parameters. Expected 1 found %d", parameters == null ? 0 : parameters.length));
-	}
+        File file = new File(parameters[0]);
+        if (!file.exists()) {
+            throw new InvalidCommandException("Expected parameter should be a path to oa file on the disk!");
+        }
 
-	File file = new File(parameters[0]);
-	if (!file.exists()) {
-	    throw new InvalidCommandException("Expected parameter should be a path to oa file on the disk!");
-	}
-
-	paramObjects.put("filename", parameters[0]);
-	return paramObjects;
-    }
-
-    @Override
-    protected void execute(Map<String, Object> parametersMap) {
-	System.out.println("Start execution");
-	try {
-	    JobParameters jobParams = new JobParametersBuilder().addString("inputFile", (String) parametersMap.get("filename")).toJobParameters();
-	    launcher.run(job, jobParams);
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	}
+        try {
+            JobParameters jobParams = new JobParametersBuilder().addString("inputFile", parameters[0]).toJobParameters();
+            launcher.run(job, jobParams);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

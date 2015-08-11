@@ -12,6 +12,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -22,10 +24,6 @@ import javax.persistence.SequenceGenerator;
  * @author iulian.radulescu
  */
 @Entity
-@NamedQueries({
-    @NamedQuery(name = "Sample.findUnitForSurveyAndSU", query = "select s from Sample s where s.survey=?1 and s.statisticalUnit=?2"),
-    @NamedQuery(name = "Sample.deleteForSurvey", query = "delete from Sample  s where s.survey=:survey")
-})
 public class Sample {
 
     @Id
@@ -40,19 +38,17 @@ public class Sample {
 
     //@ManyToOne
     //@JoinColumn(name = "SURVEY_ID")
-    @Column(name="SURVEY_ID")
+    @Column(name = "SURVEY_ID")
     private long survey;
 
-    //@ManyToOne
-    //@JoinColumn(name = "STATISTICAL_UNIT_ID")
-    @Column(name="STATISTICAL_UNIT_ID")
-    private long statisticalUnit;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "STATISTICAL_UNIT_ID")
+    private StatisticalUnit statisticalUnit;
 
-    //@ManyToOne
-    //@JoinColumn(name = "REPORTING_UNIT_ID")
-    @Column(name="REPORTING_UNIT_ID")
-    private Long reportingUnit;
-    
+    @ManyToOne
+    @JoinColumn(name = "REPORTING_UNIT_ID")
+    private ReportingUnit reportingUnit;
+
     @OneToMany(mappedBy = "sample", cascade = {CascadeType.ALL})
     private Set<UnitNonResponse> nonResponses;
 
@@ -84,39 +80,41 @@ public class Sample {
         this.survey = survey;
     }
 
-    public void setStatisticalUnit(long statisticalUnit) {
+    public void setStatisticalUnit(StatisticalUnit statisticalUnit) {
         this.statisticalUnit = statisticalUnit;
     }
-    public Long getStatisticalUnit( ) {
+
+    public StatisticalUnit getStatisticalUnit() {
         return this.statisticalUnit;
     }
 
-    public void setReportingUnit(Long reportingUnit) {
+    public void setReportingUnit(ReportingUnit reportingUnit) {
         this.reportingUnit = reportingUnit;
     }
-    public Long getReportingUnit( ) {
+
+    public ReportingUnit getReportingUnit() {
         return this.reportingUnit;
     }
-    
-    public void addNonResponse( UnitNonResponse nonResponse ) {
-	if ( nonResponses == null ) {
-	    nonResponses = new TreeSet<UnitNonResponse>( );
-	}
-	nonResponses.add(nonResponse);
+
+    public void addNonResponse(UnitNonResponse nonResponse) {
+        if (nonResponses == null) {
+            nonResponses = new TreeSet<UnitNonResponse>();
+        }
+        nonResponses.add(nonResponse);
     }
-    
-    public boolean equals( Object object ) {
-            if ( object == null || !(object instanceof UnitNonResponse) ) {
+
+    public boolean equals(Object object) {
+        if (object == null || !(object instanceof Sample)) {
             return false;
         }
-        
-        Sample other = ( Sample ) object;
-        
-        if ( other.id == null || this.id == null ) {
+
+        Sample other = (Sample) object;
+
+        if (other.id == null || this.id == null) {
             return other.survey == this.survey && other.statisticalUnit == this.statisticalUnit;
         } else {
             return other.id == this.id;
         }
     }
-    
+
 }

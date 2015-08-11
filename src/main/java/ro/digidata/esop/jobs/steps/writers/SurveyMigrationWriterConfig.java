@@ -68,9 +68,9 @@ public class SurveyMigrationWriterConfig {
                 List<ReportingUnitUser> ruuList = new ArrayList<>();
 
                 for (MicrodataMigrationProcessorOutput output : list) {
-                    microdataList.add(output.getMicrodata());
+                    microdataList.addAll(output.getMicrodata());
                     if (output.getReportingUnitUser() != null) {
-                        ruuList.add(output.getReportingUnitUser());
+                        ruuList.addAll(output.getReportingUnitUser());
                     }
                 }
 

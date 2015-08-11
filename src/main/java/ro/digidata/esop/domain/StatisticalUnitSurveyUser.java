@@ -20,11 +20,6 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name="STATISTICAL_UNIT_SURVEY_USER")
-@NamedQueries({
-    @NamedQuery(name="SUSU.findByUnitAndSurvey", query="select s from StatisticalUnitSurveyUser s where s.survey=?1 and s.unit=?2"),
-    @NamedQuery(name="SUSU.deleteForSurvey", query="delete from StatisticalUnitSurveyUser  s where s.survey=:survey"),
-     @NamedQuery(name="SUSU.countAllocations", query="select count(s) from StatisticalUnitSurveyUser s where s.survey=?1")
-})
 public class StatisticalUnitSurveyUser {
     
     @Id

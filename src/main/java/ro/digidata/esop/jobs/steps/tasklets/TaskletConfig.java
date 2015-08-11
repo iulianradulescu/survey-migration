@@ -20,4 +20,9 @@ public class TaskletConfig {
     public Tasklet validateMigrationTasklet() {
         return new ValidateSurveyMigration();
     }
+    
+     @Bean
+    public Tasklet validateS3MigrationTasklet() {
+        return new ValidateS3SurveyMigration();
+    }
 }

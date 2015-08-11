@@ -17,7 +17,7 @@ public abstract class UserCommand {
     public UserCommand( ) {
     }
 
-    public void execute( String[] parameters ) {
+    public abstract void execute( String[] parameters ); /** {
         try {
             //validate the command parameters
             Map<String, Object> parametersMap = validate( parameters );
@@ -32,5 +32,5 @@ public abstract class UserCommand {
 
     protected abstract Map<String,Object> validate( String[] parameters );
 
-    protected abstract void execute( Map<String, Object> parametersMap );
+    protected abstract void execute( Map<String, Object> parametersMap );**/
 }

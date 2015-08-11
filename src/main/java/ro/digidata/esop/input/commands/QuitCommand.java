@@ -15,17 +15,10 @@ import ro.digidata.esop.input.exceptions.QuitException;
  * @author iulian.radulescu
  */
 @Component("quit")
-public class QuitCommand extends UserCommand {
-
-    @Override
-    protected Map<String, Object> validate(String[] parameters) {
-	//just ignore anuy text written after the command
-	return new HashMap<>( );
-    }
-
-    @Override
-    protected void execute(Map<String, Object> parametersMap) {
-	throw new QuitException( );
-    }
+public class QuitCommand extends NoParameterCommand {
     
+    @Override
+    protected void doExecute() {
+        throw new QuitException( );
+    }  
 }

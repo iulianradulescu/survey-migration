@@ -7,6 +7,8 @@ package ro.digidata.esop.jobs;
 
 import javax.persistence.EntityManagerFactory;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
@@ -17,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import ro.digidata.esop.jobs.steps.SurveyMigrationStepConfig;
+import ro.digidata.esop.jobs.steps.listeners.SubSampleStepExecutionListener;
 
 /**
  *
@@ -40,22 +43,47 @@ public class SurveyMigrationJobConfig {
     @Bean
     public Job simpleMigrationJob() {
         return jobs.get("simpleMigrationJob")
-                .start(stepConfiguration.smStatisticalUnitSurveyUser( ) )
-                .split(jobExecutor( )).add(flow( ) ).on("COMPLETED")
-                .to(stepConfiguration.smValidation( ) ).end().build();
-
-        //return jobs.get("surveyMigrationJob").start(step0()).next(step1()).next(step2()).build();
-    }
-
-    @Bean(name = "smFlow")
-    public Flow flow() {
-        return new FlowBuilder<Flow>("flow").from(stepConfiguration.smSample()).next(stepConfiguration.smMicrodata()).end();
+                .start(stepConfiguration.smStatisticalUnitSurveyUser())
+                .split(jobExecutor())
+                .add(flow(stepConfiguration.smSample(), stepConfiguration.smMicrodata()))
+                .on("COMPLETED")
+                .to(stepConfiguration.smValidation()).end().build();
     }
 
     @Bean
+    public Job unicaMigrationJob() {
+        return jobs.get("unicaMigrationJob")
+                .start(stepConfiguration.smStatisticalUnitSurveyUser())
+                .split(jobExecutor()).add(flow(stepConfiguration.smSample(), stepConfiguration.unicaMicrodata()))
+                .on("COMPLETED")
+                .to(stepConfiguration.smValidation()).end().build();
+    }
+
+    @Bean
+    public Job s3MigrationJob() {
+        return jobs.get("s3MigrationJob")
+                .start(stepConfiguration.smStatisticalUnitSurveyUser())
+                .split(jobExecutor()).add(flow(stepConfiguration.smSample(), stepConfiguration.s3Microdata()))
+                .on("COMPLETED")
+                .to(stepConfiguration.s3Validation()).end().build();
+    }
+
+    @Bean
+    public Job subSampleMigrationJob() {
+        return jobs.get("subSampleMigrationJob").start(stepConfiguration.smSubSample()).on("COMPLETED")
+                .to(stepConfiguration.smSubSampleMicrodata())
+                .next(stepConfiguration.smSubSampleStatisticalUnitSurveyUser())
+                .end()
+                .build();
+    }
+
+    private Flow flow(Step sampleStep, Step microdataStep) {
+        return new FlowBuilder<Flow>("flow").from(sampleStep).next(microdataStep).end();
+    }
+    
+    @Bean(destroyMethod = "")
     protected TaskExecutor jobExecutor() {
         TaskExecutor executor = new SimpleAsyncTaskExecutor();
         return executor;
     }
-
 }

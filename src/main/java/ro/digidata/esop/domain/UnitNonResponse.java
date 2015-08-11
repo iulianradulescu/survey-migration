@@ -44,7 +44,7 @@ public class UnitNonResponse {
    
     //@ManyToOne
     @Column(name="INSTANCE_ID")
-    private int instance;
+    private long instance;
 
     public int getNonresponse() {
         return nonresponse;
@@ -62,11 +62,11 @@ public class UnitNonResponse {
         this.sample = sample;
     }
 
-    public int getInstance() {
+    public long getInstance() {
         return instance;
     }
 
-    public void setInstance(int instance) {
+    public void setInstance(long instance) {
         this.instance = instance;
     }
     

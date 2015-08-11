@@ -21,7 +21,7 @@ import ro.digidata.esop.input.exceptions.InvalidCommandException;
  * @author radulescu
  */
 @Component("revert")
-public class RevertMigrationCommand extends UserCommand {
+public class RevertMigrationCommand extends SurveyCommand {
 
     @Autowired
     private JobLauncher launcher;
@@ -30,36 +30,13 @@ public class RevertMigrationCommand extends UserCommand {
     private Job job;
 
     @Override
-    protected Map<String, Object> validate(String[] parameters) {
-	Map<String, Object> paramObjects = new HashMap<>();
-	
-	Long survey;
-	if (parameters == null || parameters.length != 1) {
-	    throw new InvalidCommandException(String.format("Invalid number of parameters. Expected 1 found %d", parameters == null ? 0 : parameters.length));
-	}
-
-	try {
-	    survey = Long.parseLong(parameters[0]);
-	    if (survey <= 0) {
-		throw new InvalidCommandException("Expected parameter should be a positive number!");
-	    }
-	} catch (NumberFormatException exNFE) {
-	    throw new InvalidCommandException("Expected parameter should be a number!");
-	}
-
-	paramObjects.put("survey", survey);
-	return paramObjects;
-    }
-
-    @Override
-    protected void execute(Map<String, Object> parametersMap) {
-	System.out.println("Start execution");
-	try {
-	    JobParameters jobParams = new JobParametersBuilder().addLong("survey", (Long) parametersMap.get("survey")).toJobParameters();
-	    launcher.run(job, jobParams);
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	}
+    protected void doExecute(Long survey) {
+        try {
+            JobParameters jobParams = new JobParametersBuilder().addLong("survey", survey).toJobParameters();
+            launcher.run(job, jobParams);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

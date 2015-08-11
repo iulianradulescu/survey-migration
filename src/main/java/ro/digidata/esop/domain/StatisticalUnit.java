@@ -5,7 +5,9 @@
  */
 package ro.digidata.esop.domain;
 
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,6 +51,9 @@ public class StatisticalUnit {
     @Column(name= "PARENT_ID")
     private Long parent;
 
+     @OneToMany(mappedBy = "statisticalUnit", cascade = {CascadeType.ALL})
+    private Set<StatisticalUnitData> values;
+     
     public String getName() {
         return name;
     }
@@ -95,5 +100,13 @@ public class StatisticalUnit {
 
     public Long getParent() {
         return parent;
+    }
+    
+    public void addValue( StatisticalUnitData data ) {
+        if ( values == null ) {
+            values = new TreeSet<StatisticalUnitData>( );
+        }
+        
+        values.add( data );
     }
 }

@@ -44,6 +44,7 @@ public class UNICAMicrodataMigrationProcessor extends MicrodataMigrationProcesso
 
             quest.setQuestType(input.getQuestType( ) );
             quest.setSample( sample );
+             quest.setTitle( sInfo.getQuestTitle( input.getQuestType( ) ) );
             quest.setStatus(QuestionnaireStatus.ACTIV );
         }
 

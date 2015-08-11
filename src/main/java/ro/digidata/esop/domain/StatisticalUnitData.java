@@ -25,12 +25,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "STATISTICAL_UNIT_DATA")
-@NamedQueries({
-    @NamedQuery(name = "StatisticalUnitData.findBySUandAttribute", query = "select sud from StatisticalUnitData sud where sud.statisticalUnit.id=:statisticalUnit and sud.attribute.id=:attribute and sud.historical=0"),
-     @NamedQuery(name = "StatisticalUnitData.findBySU", query = "select sud from StatisticalUnitData sud where sud.statisticalUnit.id=:statisticalUnit and sud.historical=0"),
-    @NamedQuery(name = "StatisticalUnitData.removeForPopulation", query = "delete from StatisticalUnitData sud where sud.statisticalUnit in (select su from StatisticalUnit su where su.population=:population)")
-})
-public class StatisticalUnitData {
+public class StatisticalUnitData implements Comparable {
 
     @Id
     @SequenceGenerator(name = "SQSUD", sequenceName = "SQ_STATISTICAL_UNIT_DATA", allocationSize = 1)
@@ -41,9 +36,8 @@ public class StatisticalUnitData {
     @JoinColumn(name = "STATISTICAL_UNIT_ID")
     private StatisticalUnit statisticalUnit;
 
-    @ManyToOne
-    @JoinColumn(name = "POPULATION_STRUCTURE_ID")
-    private PopulationStructure attribute;
+    @Column(name = "POPULATION_STRUCTURE_ID")
+    private long attribute;
 
     private String value;
 
@@ -62,27 +56,34 @@ public class StatisticalUnitData {
         this.id = id;
     }
 
-    public StatisticalUnit getStatisticalUnit() {
-        return statisticalUnit;
-    }
-
     public void setStatisticalUnit(StatisticalUnit statisticalUnit) {
         this.statisticalUnit = statisticalUnit;
     }
 
-    public PopulationStructure getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(PopulationStructure attribute) {
+    public void setAttribute(long attribute) {
         this.attribute = attribute;
-    }
-
-    public String getValue() {
-        return value;
     }
 
     public void setValue(String value) {
         this.value = value;
     }
+
+    public void setModificationDate(Date modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+    
+     public boolean equals( Object object ) {
+        if ( object == null || !(object instanceof StatisticalUnitData) ) {
+            return false;
+        }
+        
+        StatisticalUnitData other = ( StatisticalUnitData ) object;
+        return ( other.statisticalUnit.equals( this.statisticalUnit ) && other.attribute == this.attribute );
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        return 1;
+    }
+    
 }

@@ -92,6 +92,9 @@ public class TMicrodata {
         this.interview = interview;
     }
 
+    public Questionnaire getQuestionnaire( ) {
+        return this.questionnaire;
+    }
     public void setQuestionnaire(Questionnaire questionnaire) {
         this.questionnaire = questionnaire;
     }

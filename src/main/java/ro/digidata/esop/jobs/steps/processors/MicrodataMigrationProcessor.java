@@ -5,7 +5,10 @@
  */
 package ro.digidata.esop.jobs.steps.processors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import ro.digidata.esop.domain.Questionnaire;
 import ro.digidata.esop.domain.ReportingUnitUser;
@@ -25,14 +28,18 @@ import ro.digidata.esop.repositories.QuestionnaireRepository;
 import ro.digidata.esop.repositories.ReportingUnitRepository;
 import ro.digidata.esop.repositories.ReportingUnitUserRepository;
 import ro.digidata.esop.repositories.SampleRepository;
+import ro.digidata.esop.services.SurveyService;
+import ro.digidata.esop.services.model.SurveyInfo;
 
 /**
  *
  * @author radulescu
  */
-public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, MicrodataMigrationProcessorOutput> {
+public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, MicrodataMigrationProcessorOutput>, InitializingBean {
 
-    private final Long survey;
+    protected final Long survey;
+
+    protected SurveyInfo sInfo;
 
     @Autowired
     protected ReportingUnitRepository ruRepository;
@@ -41,46 +48,67 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, Mi
     protected SampleRepository sampleRepository;
 
     @Autowired
+    protected SurveyService surveyService;
+
+    @Autowired
     protected ReportingUnitUserRepository ruuRepository;
 
     @Autowired
     protected QuestionnaireRepository questRepository;
+    
+     protected Logger logger = LoggerFactory.getLogger(MicrodataMigrationProcessor.class);
 
     public MicrodataMigrationProcessor(Long survey) {
         this.survey = survey;
     }
 
     @Override
+    public void afterPropertiesSet() throws Exception {
+        this.sInfo = surveyService.surveyInfo(this.survey);
+    }
+
+    @Override
     public MicrodataMigrationProcessorOutput process(SMicrodata record) throws Exception {
-        TMicrodata output = new TMicrodata();
 
-        output.setInstance(record.getInstance());
-        output.setVersion(record.getVersion());
-        output.setCorrelationResults(record.getCorrelations());
-        output.setCorrelationStatus(record.getCorrelation());
-
-        output.setFillMode(FillMode.valueOf(record.getFinalSave()).name());
-        output.setInterview(record.getInterview());
-        output.setLastComputed(record.getLastComputed());
-        output.setLastUpdated(record.getLastUpdated());
-        
-        Sample sample = sampleRepository.findBySurveyAndStatisticalUnit(survey, record.getSample().getMaximalListId());//processSample( record );
+        Sample sample = processSample( record );
 
         Questionnaire quest = processQuestionnaire(sample, record);
-        
+
         ReportingUnitUser ruu = null;
-        
-        if ( record.getRespondent( ) != null ) {
-            ruu = processAuthorization(quest, record.getRespondent(  ) );
+
+        if (record.getRespondent() != null) {
+            ruu = processAuthorization(quest, record.getRespondent());
         }
 
         //set on microdata
-        output.setQuestionnaire(quest);
+        TMicrodata output = processMicrodata(record, quest);
 
         //handle also the nonresponse
         handleNonResponse(record, sample);
 
         return new MicrodataMigrationProcessorOutput(output, ruu);
+    }
+    
+    protected Sample processSample( SMicrodata record ) {
+        return sampleRepository.findBySurveyAndStatisticalUnitId(survey, record.getSample().getMaximalListId());
+    }
+
+    protected TMicrodata processMicrodata(SMicrodata input, Questionnaire questionnaire) {
+        TMicrodata output = new TMicrodata();
+
+        output.setInstance(input.getInstance());
+        output.setVersion(input.getVersion());
+        output.setCorrelationResults(input.getCorrelations());
+        output.setCorrelationStatus(input.getCorrelation());
+
+        output.setFillMode(FillMode.valueOf(input.getFinalSave()).name());
+        output.setInterview(input.getInterview());
+        output.setLastComputed(input.getLastComputed());
+        output.setLastUpdated(input.getLastUpdated());
+
+        output.setQuestionnaire(questionnaire);
+
+        return output;
     }
 
     protected Questionnaire processQuestionnaire(Sample sample, SMicrodata input) {
@@ -91,6 +119,7 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, Mi
 
             quest.setQuestType(input.getQuestType());
             quest.setSample(sample);
+            quest.setTitle(sInfo.getQuestTitle(input.getQuestType()));
             quest.setStatus(QuestionnaireStatus.ACTIV);
         }
 
@@ -117,8 +146,12 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, Mi
     }
 
     protected ReportingUnitUser processAuthorization(Questionnaire questionnaire, String username) {
+        if ( questionnaire.getSample().getReportingUnit() == null ) {
+            return null;
+        }
         //we need to see if the respondent is defined in REPORTING_UNIT_USER; if not insert it, is yes,update the AUTHORIZATION field
-        ReportingUnitUser user = ruuRepository.findByUsernameAndReportingUnitId(username, questionnaire.getSample().getReportingUnit());
+        ReportingUnitUser user = ruuRepository.findByUsernameAndReportingUnitId(username, 
+                questionnaire.getSample().getReportingUnit().getId());
 
         if (user != null) {
             //it means the user was not deactivated in the meantime (still in MAXIMAL_LIST_USER which was migrated to REPORTING_UNIT_USER).
@@ -137,7 +170,7 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, Mi
             QuestionnaireType quest = null;
 
             for (UnitType u : auth.getUnit()) {
-                if (u.getId() == questionnaire.getSample().getStatisticalUnit()) {
+                if (u.getId() == questionnaire.getSample().getStatisticalUnit().getId()) {
                     unit = u;
                     break;
                 }
@@ -145,7 +178,7 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, Mi
 
             if (unit == null) {
                 unit = new UnitType();
-                unit.setId(questionnaire.getSample().getStatisticalUnit());
+                unit.setId(questionnaire.getSample().getStatisticalUnit().getId());
                 auth.getUnit().add(unit);
             }
 
@@ -182,4 +215,5 @@ public class MicrodataMigrationProcessor implements ItemProcessor<SMicrodata, Mi
 
         return user;
     }
+
 }

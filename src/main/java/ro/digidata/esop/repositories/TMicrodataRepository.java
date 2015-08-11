@@ -15,4 +15,6 @@ import ro.digidata.esop.domain.TMicrodata;
 public interface TMicrodataRepository extends CrudRepository<TMicrodata, Long>{
     
     Long deleteByInstanceSurveyId( Long survey );
+    
+    Long countByInstanceSurveyId( Long survey );
 }

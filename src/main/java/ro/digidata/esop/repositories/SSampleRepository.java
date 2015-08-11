@@ -5,14 +5,14 @@
  */
 package ro.digidata.esop.repositories;
 
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 import ro.digidata.esop.domain.SSample;
 
 /**
  *
  * @author radulescu
  */
-public interface SSampleRepository extends Repository<SSample, Long>{
+public interface SSampleRepository extends CrudRepository<SSample, Long>{
     
     Long countBySurveyId(long survey);
 }

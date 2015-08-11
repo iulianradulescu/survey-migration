@@ -30,7 +30,7 @@ import javax.persistence.TemporalType;
 public class Instance {
     
     @Id
-    private int id;
+    private long id;
     
     @ManyToOne
     @JoinColumn(name="SURVEY_ID")
@@ -46,11 +46,11 @@ public class Instance {
     
     private int period;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

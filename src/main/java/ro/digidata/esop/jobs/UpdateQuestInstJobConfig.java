@@ -51,7 +51,7 @@ public class UpdateQuestInstJobConfig {
     @Bean
     @JobScope
     public Step step() {
-	System.out.println("Step configuration for updateQuestInstJob");
+	//System.out.println("Step configuration for updateQuestInstJob");
 	return steps.get("steps").<QuestInstStructure, QuestInstStructure>chunk(1)
 		.reader(reader(null))
 		.processor(processor())
@@ -111,13 +111,13 @@ public class UpdateQuestInstJobConfig {
 	    @Override
 	    public void beforeWrite(List<? extends QuestInstStructure> list) {
 		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-		System.out.println("ITEMS TO WRITE: " + list.size());
+		//System.out.println("ITEMS TO WRITE: " + list.size());
 	    }
 
 	    @Override
 	    public void afterWrite(List<? extends QuestInstStructure> list) {
 		//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-		System.out.println("ITEMS WROTE: " + list.size());
+		//System.out.println("ITEMS WROTE: " + list.size());
 	    }
 
 	    @Override

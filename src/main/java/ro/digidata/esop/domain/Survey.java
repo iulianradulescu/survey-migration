@@ -5,14 +5,16 @@
  */
 package ro.digidata.esop.domain;
 
-import java.util.Collection;
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 
 /**
  *
@@ -29,14 +31,22 @@ public class Survey {
 
     private int status;
 
+    @Column(name = "SURVEY_SCRIPT")
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private String script;
+
     //@OneToMany(mappedBy = "survey")
     //private Collection<Instance> instances;
-
     @ManyToOne
     @JoinColumn(name = "TEMPLATE_ID")
     private Template template;
 
     public Template getTemplate() {
         return template;
+    }
+    
+    public String getScript( ) {
+        return this.script;
     }
 }

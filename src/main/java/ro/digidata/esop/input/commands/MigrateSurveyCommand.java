@@ -5,62 +5,45 @@
  */
 package ro.digidata.esop.input.commands;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.annotation.Resource;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ro.digidata.esop.input.exceptions.InvalidCommandException;
+import ro.digidata.esop.jobs.SurveyMigrationJobClassifier;
+import ro.digidata.esop.services.SurveyService;
+import ro.digidata.esop.services.model.SurveyInfo;
 
 /**
  *
  * @author radulescu
  */
 @Component("migrate")
-public class MigrateSurveyCommand extends UserCommand {
+public class MigrateSurveyCommand extends SurveyCommand {
 
-   
     @Autowired
     private JobLauncher launcher;
 
-    @Resource(name = "simpleMigrationJob")
-    private Job job;
-
-    @Override
-    protected Map<String, Object> validate(String[] parameters) {
-	Map<String, Object> paramObjects = new HashMap<>();
-	
-	Long survey;
-	if (parameters == null || parameters.length != 1) {
-	    throw new InvalidCommandException(String.format("Invalid number of parameters. Expected 1 found %d", parameters == null ? 0 : parameters.length));
-	}
-
-	try {
-	    survey = Long.parseLong(parameters[0]);
-	    if (survey <= 0) {
-		throw new InvalidCommandException("Expected parameter should be a positive number!");
-	    }
-	} catch (NumberFormatException exNFE) {
-	    throw new InvalidCommandException("Expected parameter should be a number!");
-	}
-
-	paramObjects.put("survey", survey);
-	return paramObjects;
-    }
-
-    @Override
-    protected void execute(Map<String, Object> parametersMap) {
-	System.out.println("Start execution");
-	try {
-	    JobParameters jobParams = new JobParametersBuilder().addLong("survey", (Long) parametersMap.get("survey")).toJobParameters();
-	    launcher.run(job, jobParams);
-	} catch (Exception ex) {
-	    ex.printStackTrace();
-	}
-    }
+    @Autowired
+    private SurveyMigrationJobClassifier jobClassifier;
     
+    @Autowired
+    private SurveyService surveyService;
+
+    @Override
+    protected void doExecute(Long survey) {
+       try {
+           SurveyInfo sInfo = surveyService.surveyInfo( survey );
+           
+            Job job = jobClassifier.classify( sInfo.sClass( ) );
+            
+            JobParameters jobParams = new JobParametersBuilder().addLong("survey", survey ).toJobParameters();
+            JobExecution exec = launcher.run(job, jobParams);
+            logger.info("Migration finalized with status " + exec.getExitStatus().getExitCode() + " time = " + (exec.getEndTime().getTime() - exec.getStartTime().getTime())/1000f + " sec");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }

@@ -45,6 +45,9 @@ public class Questionnaire {
     
     @Column(name="QUEST_EXT_KEY")
     private String extendedKey;
+    
+    @Column(name="TITLE")
+    private String title;
 
     public int getId() {
         return id;
@@ -85,4 +88,14 @@ public class Questionnaire {
     public String getExtendedKey() {
         return extendedKey;
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
+    
 }

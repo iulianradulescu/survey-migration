@@ -14,8 +14,12 @@ import ro.digidata.esop.domain.Sample;
  */
 public interface SampleRepository extends CrudRepository<Sample, Long> {
     
-    Sample findBySurveyAndStatisticalUnit(Long survey, Long statisticalUnit );
+    Sample findBySurveyAndStatisticalUnitId(Long survey, Long statisticalUnit );
+    
+    Sample findBySurveyAndStatisticalUnitCodeAndStatisticalUnitPopulation( Long survey, String code, int population );
     
     Long countBySurvey( long survey );
+    
+    Long deleteBySurvey(Long survey );
     
 }

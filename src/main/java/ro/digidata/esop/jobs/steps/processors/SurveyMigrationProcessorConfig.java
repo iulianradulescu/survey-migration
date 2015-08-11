@@ -16,6 +16,8 @@ import ro.digidata.esop.domain.SSample;
 import ro.digidata.esop.domain.Sample;
 import ro.digidata.esop.domain.StatisticalUnitSurveyUser;
 import ro.digidata.esop.jobs.steps.model.MicrodataMigrationProcessorOutput;
+import ro.digidata.esop.jobs.steps.model.SubSample;
+import ro.digidata.esop.jobs.steps.model.SubSampleSurveyUser;
 
 /**
  *
@@ -32,13 +34,43 @@ public class SurveyMigrationProcessorConfig {
 
     @Bean
     @StepScope
+    public ItemProcessor<SubSample, Sample> subSampleProcessor(@Value("#{jobParameters['survey']}") Long survey) {
+        return new SubSampleMigrationProcessor(survey);
+    }
+
+    @Bean
+    @StepScope
     public ItemProcessor<MaximalListSurveyUser, StatisticalUnitSurveyUser> statisticalUnitSurveyUserProcessor() {
         return new StatisticalUnitSurveyUserProcessor();
     }
-    
-     @Bean
+
+    @Bean
     @StepScope
     public ItemProcessor<SMicrodata, MicrodataMigrationProcessorOutput> microdataProcessor(@Value("#{jobParameters['survey']}") Long survey) {
         return new MicrodataMigrationProcessor(survey);
+    }
+
+    @Bean
+    @StepScope
+    public ItemProcessor<SMicrodata, MicrodataMigrationProcessorOutput> subSampleMicrodataProcessor(@Value("#{jobParameters['survey']}") Long survey) {
+        return new SubSampleMicrodataMigrationProcessor(survey);
+    }
+    
+    @Bean
+    @StepScope
+    public ItemProcessor<SubSampleSurveyUser, StatisticalUnitSurveyUser> subSampleStatisticalUnitSurveyUserProcessor(@Value("#{jobParameters['survey']}") Long survey) {
+        return new SubSampleStatisticalUnitSurveyUserProcessor(survey);
+    }
+
+    @Bean
+    @StepScope
+    public ItemProcessor<SMicrodata, MicrodataMigrationProcessorOutput> unicaMicrodataProcessor(@Value("#{jobParameters['survey']}") Long survey) {
+        return new UNICAMicrodataMigrationProcessor(survey);
+    }
+
+    @Bean
+    @StepScope
+    public ItemProcessor<SMicrodata, MicrodataMigrationProcessorOutput> s3MicrodataProcessor(@Value("#{jobParameters['survey']}") Long survey) {
+        return new S3MicrodataMigrationProcessor(survey);
     }
 }

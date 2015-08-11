@@ -15,4 +15,6 @@ import ro.digidata.esop.domain.StatisticalUnitSurveyUser;
 public interface StatisticalUnitSurveyUserRepository extends Repository<StatisticalUnitSurveyUser, Long>{
     
     StatisticalUnitSurveyUser findByUnitAndSurvey( Long statisticalUnit, Long survey );
+    
+    Long countBySurvey( Long survey );
 }

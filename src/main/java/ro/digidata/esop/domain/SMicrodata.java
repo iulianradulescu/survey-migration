@@ -26,16 +26,6 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "OLD_MICRODATA")
-@NamedQueries({
-    @NamedQuery(name = "Microdata.getData", query = "select m.id from SMicrodata m where m.instance.id = :instance"),
-    @NamedQuery(name = "Microdata.getHistoricalData", query = "select m from SMicrodata m "
-            + "where m.instance.id = (select i.id from Instance i where i.survey.id=:survey and i.survey.status=13 and i.period=0)"),
-    @NamedQuery(name = "Microdata.getHistoricalDataWithQuestInst", query = "select m from SMicrodata m "
-            + "where m.instance.id = (select i.id from Instance i where i.survey.id=:survey and i.survey.status=13 and i.period=0) and m.questInst = :questInst"),
-    @NamedQuery(name = "Microdata.getDataForS3", query = "select m.id from SMicrodata m where m.instance.id = :instance and m.questType='S3'"),
-    @NamedQuery(name = "Microdata.getS3AnexaForSample", query = "select m from SMicrodata m where m.instance.id = :instance and m.questType='S3_ANEXA' and m.sample.id=:sample")
-
-})
 public class SMicrodata {
 
     @Id

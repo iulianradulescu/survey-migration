@@ -6,10 +6,15 @@
 
 package ro.digidata.esop.domain;
 
+import java.util.List;
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -21,7 +26,7 @@ import javax.persistence.Table;
 public class SSample {
     
     @Id
-    private int id;
+    private long id;
     
     private int status;
     
@@ -32,14 +37,18 @@ public class SSample {
     private long maximalListId;
     
     @ManyToOne
-    //@JoinColumn(name="SURVEY_ID")
+    @JoinColumn(name="SURVEY_ID")
     private Survey survey;
+    
+    @OneToMany(mappedBy = "sample")
+    @Basic(fetch = FetchType.LAZY)
+    private List<SMicrodata> records;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -65,5 +74,9 @@ public class SSample {
 
     public void setMaximalListId(long maximalListId) {
         this.maximalListId = maximalListId;
+    }
+    
+    public List<SMicrodata> getRecords( ) {
+        return this.records;
     }
 }

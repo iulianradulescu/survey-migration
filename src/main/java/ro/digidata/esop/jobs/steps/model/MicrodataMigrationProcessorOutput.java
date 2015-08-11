@@ -5,6 +5,8 @@
  */
 package ro.digidata.esop.jobs.steps.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import ro.digidata.esop.domain.ReportingUnitUser;
 import ro.digidata.esop.domain.TMicrodata;
 
@@ -14,19 +16,29 @@ import ro.digidata.esop.domain.TMicrodata;
  */
 public class MicrodataMigrationProcessorOutput {
 
-    private TMicrodata microdata;
-    private ReportingUnitUser reportingUnitUser;
+    private List<TMicrodata> microdata = new ArrayList<>();
+    private List<ReportingUnitUser> reportingUnitUsers = new ArrayList<>();
 
     public MicrodataMigrationProcessorOutput(TMicrodata microdata, ReportingUnitUser reportingUnitUser) {
-        this.microdata = microdata;
-        this.reportingUnitUser = reportingUnitUser;
+        this.microdata.add(microdata);
+        if (reportingUnitUser != null) {
+            this.reportingUnitUsers.add(reportingUnitUser);
+        }
     }
 
-    public TMicrodata getMicrodata() {
+    public List<TMicrodata> getMicrodata() {
         return this.microdata;
     }
 
-    public ReportingUnitUser getReportingUnitUser() {
-        return this.reportingUnitUser;
+    public void addMicrodata(TMicrodata microdata) {
+        this.microdata.add(microdata);
+    }
+
+    public List<ReportingUnitUser> getReportingUnitUser() {
+        return this.reportingUnitUsers;
+    }
+
+    public void addReportingUnitUser(ReportingUnitUser ruu) {
+        this.reportingUnitUsers.add(ruu);
     }
 }
